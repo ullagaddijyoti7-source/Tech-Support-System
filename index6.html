@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SupportPro - Tech Support System</title>
+  <style>
+    :root {
+      --primary: #dc2626;
+      --primary-hover: #b91c1c;
+      --primary-light: #fee2e2;
+      --primary-accent: #fca5a5;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+      --transition: all 0.2s ease-in-out;
+    }
+
+    [data-theme="dark"] {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --primary-light: rgba(220, 38, 38, 0.15);
+      --primary-accent: #991b1b;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 100;
+      transition: var(--transition);
+    }
+
+    .brand {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 1rem 0.75rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .nav-item { margin-bottom: 4px; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.925rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .role-badge-box {
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      background-color: rgba(0,0,0,0.02);
+    }
+
+    .role-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .role-selector {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .main-wrapper {
+      margin-left: 260px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .top-bar {
+      height: 64px;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 20px;
+      width: 320px;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--text-main);
+      width: 100%;
+      font-size: 0.875rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+    }
+
+    .btn-primary:hover { background-color: var(--primary-hover); }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover { background-color: var(--border-color); }
+
+    .content-container { padding: 2rem; flex: 1; }
+
+    .page-section {
+      display: none;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .page-section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title { font-size: 1.5rem; font-weight: 700; }
+    .section-subtitle { color: var(--text-muted); font-size: 0.875rem; margin-top: 2px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-value { font-size: 1.75rem; font-weight: 700; margin: 4px 0; }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chart-container { position: relative; width: 100%; height: 240px; }
+    canvas { width: 100% !important; height: 100% !important; }
+
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+    th { background-color: var(--bg-main); color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-critical { background: #fee2e2; color: #991b1b; }
+    .badge-high { background: #ffedd5; color: #9a3412; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low { background: #dcfce7; color: #166534; }
+
+    .status-progress { background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+    /* Live Chat Container */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 450px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .message-customer {
+      align-self: flex-start;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .message-agent {
+      align-self: flex-end;
+      background: var(--primary);
+      color: white;
+    }
+
+    .chat-input-row {
+      display: flex;
+      padding: 1rem;
+      gap: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal-backdrop.active { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      width: 90%; max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .toast-container {
+      position: fixed; bottom: 20px; right: 20px;
+      z-index: 1100; display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .toast {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      border-left: 4px solid var(--primary);
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: var(--shadow-lg);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛠️</div>
+      <span>SupportPro</span>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a class="nav-link active" onclick="switchSection('dashboard', this)">📊 Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('tickets', this)">🎫 Tickets</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('chat', this)">💬 Live Chat</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('knowledge', this)">📚 Knowledge Base</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('customers', this)">👥 Customers</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('agents', this)">🎧 Agents</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('analytics', this)">📈 Ticket Analytics</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('feedback', this)">⭐ Feedback & Surveys</a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchSection('reports', this)">📄 Reports</a></li>
+    </ul>
+
+    <div class="role-badge-box">
+      <div class="role-title">Active Role</div>
+      <select class="role-selector" id="roleSelect" onchange="changeRole(this.value)">
+        <option value="Customer">Customer</option>
+        <option value="Agent">Support Agent</option>
+        <option value="Admin">Administrator</option>
+      </select>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header class="top-bar">
+      <div class="search-box">
+        <input type="text" placeholder="Search tickets, FAQs, agents..." id="globalSearch" onkeyup="handleGlobalSearch(this.value)">
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" title="Toggle Theme" onclick="toggleTheme()">☀️</button>
+        <button class="btn-primary" onclick="openTicketModal()">+ New Ticket</button>
+      </div>
+    </header>
+
+    <main class="content-container">
+
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="page-section active">
+        <div class="section-header">
+          <div>
+            <h1 class="section-title">Technical Support Overview</h1>
+            <p class="section-subtitle">Real-time statistics on tickets, SLA response times, and agent metrics.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Total Tickets</div>
+              <div class="stat-value" id="statTotalTickets">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Open / In Progress</div>
+              <div class="stat-value" id="statOpenTickets">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Avg Response Time</div>
+              <div class="stat-value">18 mins</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">CSAT Rating</div>
+              <div class="stat-value">4.8 / 5.0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-title">Ticket Volume Trends</div>
+            <div class="chart-container"><canvas id="trendChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Tickets by Category</div>
+            <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recent System Activity</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Time</th><th>Activity</th><th>Module</th><th>Role</th></tr>
+              </thead>
+              <tbody id="activityTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TICKETS MANAGEMENT -->
+      <section id="tickets" class="page-section">
+        <div class="section-header">
+          <div>
+            <h1 class="section-title">Support Ticket Management</h1>
+            <p class="section-subtitle">View, track, assign, and update technical support tickets.</p>
+          </div>
+          <button class="btn-primary" onclick="openTicketModal()">+ Create Ticket</button>
+        </div>
+
+        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+          <div class="form-row">
+            <div>
+              <label class="form-label">Category</label>
+              <select class="form-control" id="filterCategory" onchange="renderTicketsTable()">
+                <option value="All">All Categories</option>
+                <option value="Hardware Issue">Hardware Issue</option>
+                <option value="Software Issue">Software Issue</option>
+                <option value="Network Problem">Network Problem</option>
+                <option value="Mobile Support">Mobile Support</option>
+                <option value="Security Issue">Security Issue</option>
+                <option value="Email Support">Email Support</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Priority</label>
+              <select class="form-control" id="filterPriority" onchange="renderTicketsTable()">
+                <option value="All">All Priorities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="ticketsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE CHAT -->
+      <section id="chat" class="page-section">
+        <div class="section-header">
+          <h1 class="section-title">Simulated Live Chat Interface</h1>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-row">
+            <input type="text" class="form-control" id="chatInput" placeholder="Type a message as Customer or Agent..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button class="btn-primary" onclick="sendChatMessage()">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- KNOWLEDGE BASE -->
+      <section id="knowledge" class="page-section">
+        <div class="section-header"><h1 class="section-title">Knowledge Base & Technical FAQs</h1></div>
+        <div class="card">
+          <h3 style="margin-bottom:8px;">🔐 How to reset your email account password?</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem;">Navigate to account settings, select 'Security', and click 'Reset Password'. Check your email for verification link.</p>
+        </div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="customers" class="page-section">
+        <div class="section-header"><h1 class="section-title">Customer Profiles</h1></div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Total Tickets</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>John Doe</td><td>john@example.com</td><td>3</td><td><span class="badge badge-low">Active</span></td></tr>
+                <tr><td>Jane Smith</td><td>jane@example.com</td><td>1</td><td><span class="badge badge-low">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENTS -->
+      <section id="agents" class="page-section">
+        <div class="section-header"><h1 class="section-title">Support Agents</h1></div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Agent Name</th><th>Role</th><th>Tickets Resolved</th><th>Performance</th></tr></thead>
+              <tbody>
+                <tr><td>Sarah Connor</td><td>Senior Agent</td><td>48</td><td>⭐⭐⭐⭐⭐ (4.9)</td></tr>
+                <tr><td>Mike Ross</td><td>Support Specialist</td><td>32</td><td>⭐⭐⭐⭐ (4.7)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="analytics" class="page-section">
+        <div class="section-header"><h1 class="section-title">Ticket Analytics</h1></div>
+        <div class="card"><p style="color:var(--text-muted);">SLA Resolution Rate: <strong>96.4% compliant</strong></p></div>
+      </section>
+
+      <!-- FEEDBACK -->
+      <section id="feedback" class="page-section">
+        <div class="section-header"><h1 class="section-title">Customer Feedback & Surveys</h1></div>
+        <div class="card">
+          <p><strong>"Prompt response and resolved my software issue instantly!"</strong> — Customer Rating: ⭐⭐⭐⭐⭐</p>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="reports" class="page-section">
+        <div class="section-header"><h1 class="section-title">Reports & Export</h1></div>
+        <div class="card">
+          <button class="btn-primary" onclick="exportDataCSV()">Export Ticket Report (CSV)</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- TICKET MODAL -->
+  <div class="modal-backdrop" id="ticketModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Create Technical Ticket</h3>
+        <button onclick="closeTicketModal()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">&times;</button>
+      </div>
+      <form onsubmit="handleSaveTicket(event)">
+        <input type="hidden" id="ticketId">
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input type="text" class="form-control" id="formSubject" required placeholder="e.g. Unable to access email account">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-control" id="formCategory">
+              <option value="Email Support">Email Support</option>
+              <option value="Software Issue">Software Issue</option>
+              <option value="Hardware Issue">Hardware Issue</option>
+              <option value="Network Problem">Network Problem</option>
+              <option value="Security Issue">Security Issue</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-control" id="formPriority">
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="formDesc" rows="3" required placeholder="Explain the technical problem..."></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn-secondary" onclick="closeTicketModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const defaultTickets = [
+      { id: 'TK-1001', subject: 'Unable to access email account', category: 'Email Support', priority: 'High', status: 'In Progress', desc: 'User cannot login to email account.' },
+      { id: 'TK-1002', subject: 'Software installation failed', category: 'Software Issue', priority: 'Medium', status: 'New', desc: 'Error during update installation.' }
+    ];
+
+    const defaultChats = [
+      { sender: 'Customer', text: 'Hello, I need urgent help resetting my password.' },
+      { sender: 'Agent', text: 'Hi! I am looking into your ticket TK-1001 right now.' }
+    ];
+
+    const defaultActivities = [
+      { time: 'Just now', text: 'New ticket TK-1002 submitted', module: 'Tickets', role: 'Customer' },
+      { time: '10 mins ago', text: 'Ticket TK-1001 priority escalated', module: 'Tickets', role: 'Agent' }
+    ];
+
+    function loadData(key, fallback) {
+      try {
+        const item = localStorage.getItem('supportpro_' + key);
+        return item ? JSON.parse(item) : fallback;
+      } catch (e) { return fallback; }
+    }
+
+    function saveData(key, val) {
+      localStorage.setItem('supportpro_' + key, JSON.stringify(val));
+    }
+
+    let tickets = loadData('tickets', defaultTickets);
+    let chats = loadData('chats', defaultChats);
+    let activities = loadData('activities', defaultActivities);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+      renderTicketsTable();
+      renderChat();
+      renderActivityTable();
+    });
+
+    function switchSection(id, elem) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (elem) elem.classList.add('active');
+      if (id === 'dashboard') renderDashboard();
+    }
+
+    function changeRole(role) {
+      showToast(`Switched active role to ${role}`);
+      logActivity(`Role switched to ${role}`, 'System', role);
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      showToast(`Switched to ${isDark ? 'Light' : 'Dark'} mode`);
+      renderDashboard();
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function logActivity(text, module, role = 'Admin') {
+      activities.unshift({ time: 'Just now', text, module, role });
+      if (activities.length > 8) activities.pop();
+      saveData('activities', activities);
+      renderActivityTable();
+    }
+
+    function renderActivityTable() {
+      const tbody = document.getElementById('activityTable');
+      if (!tbody) return;
+      tbody.innerHTML = activities.map(a => `
+        <tr>
+          <td style="color:var(--text-muted); font-size:0.8rem;">${a.time}</td>
+          <td>${a.text}</td>
+          <td><span class="badge badge-low">${a.module}</span></td>
+          <td><strong>${a.role}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDashboard() {
+      document.getElementById('statTotalTickets').innerText = tickets.length;
+      document.getElementById('statOpenTickets').innerText = tickets.filter(t => t.status !== 'Resolved').length;
+      drawTrendChart();
+      drawCategoryChart();
+    }
+
+    function drawTrendChart() {
+      const canvas = document.getElementById('trendChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth;
+      const h = canvas.height = canvas.parentElement.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      const pts = [10, 22, 18, 35, 42, 50, 65];
+      const max = 70;
+      const stepX = (w - 40) / (pts.length - 1);
+
+      ctx.beginPath();
+      pts.forEach((pt, i) => {
+        const x = 20 + i * stepX;
+        const y = h - 20 - (pt / max) * (h - 40);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function drawCategoryChart() {
+      const canvas = document.getElementById('categoryChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth;
+      const h = canvas.height = canvas.parentElement.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      const cats = {};
+      tickets.forEach(t => cats[t.category] = (cats[t.category] || 0) + 1);
+      const keys = Object.keys(cats);
+      const colors = ['#dc2626', '#3b82f6', '#f59e0b', '#10b981'];
+
+      let start = 0;
+      keys.forEach((k, i) => {
+        const slice = (cats[k] / tickets.length) * 2 * Math.PI;
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.beginPath();
+        ctx.moveTo(w / 3, h / 2);
+        ctx.arc(w / 3, h / 2, 70, start, start + slice);
+        ctx.closePath();
+        ctx.fill();
+        start += slice;
+      });
+    }
+
+    function renderTicketsTable() {
+      const tbody = document.getElementById('ticketsTable');
+      if (!tbody) return;
+      const cat = document.getElementById('filterCategory').value;
+      const prio = document.getElementById('filterPriority').value;
+
+      const filtered = tickets.filter(t => {
+        return (cat === 'All' || t.category === cat) && (prio === 'All' || t.priority === prio);
+      });
+
+      tbody.innerHTML = filtered.map(t => `
+        <tr>
+          <td><strong>${t.id}</strong></td>
+          <td>${t.subject}</td>
+          <td>${t.category}</td>
+          <td><span class="badge badge-${t.priority.toLowerCase()}">${t.priority}</span></td>
+          <td><span class="status-progress">${t.status}</span></td>
+          <td><button class="btn-secondary" style="padding:2px 8px; font-size:0.75rem;" onclick="resolveTicket('${t.id}')">Resolve</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function resolveTicket(id) {
+      const index = tickets.findIndex(t => t.id === id);
+      if (index !== -1) {
+        tickets[index].status = 'Resolved';
+        saveData('tickets', tickets);
+        showToast(`Ticket ${id} marked as Resolved`);
+        renderTicketsTable();
+        renderDashboard();
+      }
+    }
+
+    function openTicketModal() {
+      document.getElementById('ticketModal').classList.add('active');
+    }
+
+    function closeTicketModal() {
+      document.getElementById('ticketModal').classList.remove('active');
+    }
+
+    function handleSaveTicket(e) {
+      e.preventDefault();
+      const subject = document.getElementById('formSubject').value;
+      const category = document.getElementById('formCategory').value;
+      const priority = document.getElementById('formPriority').value;
+      const desc = document.getElementById('formDesc').value;
+
+      const newTk = { id: 'TK-' + Math.floor(1000 + Math.random() * 9000), subject, category, priority, status: 'New', desc };
+      tickets.push(newTk);
+      saveData('tickets', tickets);
+
+      showToast(`Submitted Ticket ${newTk.id}`);
+      logActivity(`Created ticket ${newTk.id}`, 'Tickets');
+      closeTicketModal();
+      renderTicketsTable();
+      renderDashboard();
+    }
+
+    function renderChat() {
+      const container = document.getElementById('chatMessages');
+      if (!container) return;
+      container.innerHTML = chats.map(c => `
+        <div class="message-bubble ${c.sender === 'Agent' ? 'message-agent' : 'message-customer'}">
+          <strong>${c.sender}:</strong> ${c.text}
+        </div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Updated Chat function with automatic Agent reply
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const currentRole = document.getElementById('roleSelect').value;
+      let senderName = currentRole === 'Agent' ? 'Agent' : 'Customer';
+
+      chats.push({ sender: senderName, text: val });
+      saveData('chats', chats);
+      input.value = '';
+      renderChat();
+
+      // Auto-reply from Support Agent when user sends as Customer
+      if (senderName === 'Customer') {
+        setTimeout(() => {
+          const autoReplies = [
+            "Thank you! Our technical support team is reviewing your issue.",
+            "Got it. Let me check the system logs for this error.",
+            "I have forwarded this ticket to our senior engineer. We will update you shortly."
+          ];
+          const randomReply = autoReplies[Math.floor(Math.random() * autoReplies.length)];
+          
+          chats.push({ sender: 'Agent', text: randomReply });
+          saveData('chats', chats);
+          renderChat();
+        }, 1000);
+      }
+    }
+
+    function exportDataCSV() {
+      let csv = "ID,Subject,Category,Priority,Status\n";
+      tickets.forEach(t => { csv += `"${t.id}","${t.subject}","${t.category}","${t.priority}","${t.status}"\n`; });
+      const link = document.createElement("a");
+      link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+      link.download = "supportpro_tickets.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV Exported successfully!");
+    }
+
+    function handleGlobalSearch(query) {
+      const q = query.toLowerCase();
+      document.querySelectorAll('#ticketsTable tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
